@@ -13,7 +13,7 @@ USERNAMES_FILE = "usernames.csv"
 
 def backup_and_create():
     if not os.path.exists(USERNAMES_FILE):
-        sys.exit("{} file is not exists".format(USERNAMES_FILE))
+        sys.exit("{} file does not exist".format(USERNAMES_FILE))
 
     if not os.path.exists(BACKUP_FOLDER):
         os.makedirs(BACKUP_FOLDER)
