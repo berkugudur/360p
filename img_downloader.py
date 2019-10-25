@@ -5,6 +5,7 @@ from shutil import copyfile
 import instaloader
 import csv
 import os
+import math
 
 OUTPUT_FILE = "output.csv"
 BACKUP_FOLDER = "backup"
@@ -34,14 +35,27 @@ def get_usernames():
             usernames.append(row[0])
     return usernames
 
-def download_post(L, username, profile, post, output):
-    row = "{},{},{},{}\n".format(username, profile.followers, post.shortcode, post.likes)
+def write_to_file(output, username, followers, shortcode, likes, label):
+    row = "{},{},{},{},{}\n".format(username, followers, shortcode, likes, label)
     print("INFO: {}".format(row), end = '')
     output.write(row)
+
+def download_post(L, username, profile, post, output):
+    # Just change below line for the label result
+    label = math.ceil(100*(post.likes/profile.followers))
+
+    photo_count = sum(1 for _ in post.get_sidecar_nodes())
+    if photo_count == 0:
+        write_to_file(output, username, profile.followers, post.shortcode, post.likes, label)
+    else:
+        count = 1
+        for photo_node in post.get_sidecar_nodes():
+            write_to_file(output, username, profile.followers, str(post.shortcode) + "_" + str(count), post.likes, label)
+            count += 1
     L.download_post(post, DOWNLOAD_FOLDER)
 
 def download_posts(L, usernames, output):
-    SINCE = datetime(2019, 10, 1)
+    SINCE = datetime(2019, 12, 1)
     UNTIL = datetime(2018, 5, 1)
     for username in usernames:
         profile = instaloader.Profile.from_username(L.context, username)
